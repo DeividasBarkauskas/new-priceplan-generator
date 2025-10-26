@@ -1,4 +1,69 @@
 export const PROCEDURE_BLOCK = `
+@pavadinimas = Pavadinimas 
+@spausdinamas_pavadinimas = Pavadinimas 
+@pdf_name = Pavadinimas 
+@kodas = Plano kodas 
+@grupe = RES ar BUS 
+@plano_grupe = voice/mbb ar t.t 
+@fair_usage_policy = FUP 
+@internet_security = 1; 
+@is_5g = 1; 
+@gb_campaign = Įtraukti 7512 ar ne 
+@root_product_fee = mokejimo_planai_tariff_all įsimeti tariff code 1-AXJB9J, pasiimi fee 
+@root_product = Siebel plano kodas 
+@offer_fee =plano kodas su nuolaida 
+@default_plan = '2'; 
+@risk_level = '0'; 
+@bucket_size = '71680'; 
+@plan_promotion_product = jei nėra paliekam tuščias kabutes 
+@periods = '18,24'; 
+@wsc_period = '24'; 
+@services = Paslaugos plius nuolaidos didėjančia tvarka 
+
+ 
+
+-- Salestool new price plan db procedure 
+
+SET @pavadinimas = '5G: 30 GB + 40 GB, Neriboti pokalbiai ir SMS už 17,90 Eur';  
+
+SET @spausdinamas_pavadinimas = '5G: 30 GB + 40 GB, Neriboti pokalbiai ir SMS už 17,90 Eur';  
+
+SET @pdf_name = '5G: 30 GB + 40 GB, Neriboti pokalbiai ir SMS už 17,90 Eur';  
+
+SET @kodas = '1-AXJB9J-70GB-1790';  
+
+SET @grupe = 1;  
+
+SET @plano_grupe = 1;  
+
+SET @fair_usage_policy = 0;  
+
+SET @internet_security = 1; 
+
+SET @is_5g = 1; 
+
+SET @gb_campaign = 1; 
+
+SET @root_product_fee = 6.90;  
+
+SET @root_product = '1-AXJB9J';  
+
+SET @offer_fee = 17.90;  
+
+SET @default_plan = '2';  
+
+SET @risk_level = '0';  
+
+SET @bucket_size = '71680';  
+
+SET @plan_promotion_product = '';  
+
+SET @periods = '18,24'; 
+
+SET @wsc_period = '24'; 
+
+SET @services = '7392,8199,8200,9198,11451'; 
+
 DELIMITER $$ 
 
 CREATE PROCEDURE temp_new_price_plan() 
@@ -104,8 +169,6 @@ BEGIN
         SET @price_plan_id = (SELECT id FROM mokejimo_planai WHERE kodas = @kodas); 
 
     END IF; 
-
-
 
     IF @plan_promotion_product <> '' THEN 
 
@@ -803,7 +866,7 @@ BEGIN
 
     INSERT INTO package_codes (package_code, active, siebel_code) 
 
-    SELECT CONCAT('mp_',CONCAT(@price_plan_id, '_'),GROUP_CONCAT(mps.akp_id ORDER BY mps.akp_id ASC SEPARATOR '_')),'1',CONCAT('mp_', CONCAT(@price_plan_id, '_'),tp.period) 
+    SELECT CONCAT('mp_',CONCAT(@price_plan_id, '_'),GROUP_CONCAT(mps.akp_id ORDER BY mps.akp_id ASC SEPARATOR '_')),1,CONCAT('mp_', CONCAT(@price_plan_id, '_'),tp.period) 
 
     FROM temp_periods tp 
 
@@ -825,7 +888,7 @@ BEGIN
 
     IF @fair_usage_policy = 1 THEN  
 
-      IF @threshold_value NOT IN('Standard', 'Standard+') THEN 
+      IF @threshold_value NOT IN('Standart', 'Standart+') THEN 
 
         INSERT INTO price_plan_attribute (price_plan_id,name,value) 
 
@@ -837,7 +900,7 @@ BEGIN
 
       ELSE  
 
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '[VALIDATION ERROR] if fair_usage_policy is set to 1, @threshold_value has to be set to \`Standard\` OR \`Standard+\`'; 
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = '[VALIDATION ERROR] if fair_usage_policy is set to 1, @threshold_value has to be set to Standard OR Standard+'; 
 
       END IF; 
 
@@ -871,9 +934,9 @@ BEGIN
 
       OR (pp_from.grupe = @grupe AND pp_from.plano_grupe = @plano_grupe AND pp_to.id = @price_plan_id); 
 
-      INSERT INTO mokejimo_planai_change (\`plan_from\`, \`plan_to\`, \`time\`, \`client_type\`, \`source\`) 
+      INSERT INTO mokejimo_planai_change (plan_from, plan_to, time, client_type, source) 
 
-      SELECT DISTINCT pp_from.id AS \`plan_from\`, pp_to.id AS \`plan_to\`, '1' AS \`time\`, @grupe AS \`client_type\`, '1' AS \`source\` 
+      SELECT DISTINCT pp_from.id AS plan_from, pp_to.id AS plan_to, '1' AS time, @grupe AS client_type, '1' AS source 
 
       FROM mokejimo_planai pp_from 
 
@@ -887,9 +950,9 @@ BEGIN
 
       OR (pp_from.grupe = @grupe AND pp_from.plano_grupe = @plano_grupe AND pp_to.id = @price_plan_id); 
 
-      INSERT INTO mokejimo_planai_change (\`plan_from\`, \`plan_to\`, \`time\`, \`client_type\`, \`source\`) 
+      INSERT INTO mokejimo_planai_change (plan_from, plan_to, time, client_type, source) 
 
-      SELECT DISTINCT pp_from.id AS \`plan_from\`, pp_to.id AS \`plan_to\`, '2' AS \`time\`, @grupe AS \`client_type\`, '1' AS \`source\` 
+      SELECT DISTINCT pp_from.id AS plan_from, pp_to.id AS plan_to, '2' AS time, @grupe AS client_type, '1' AS source 
 
       FROM mokejimo_planai pp_from 
 
@@ -909,25 +972,9 @@ BEGIN
 
     IF @grupe = 2 AND @plano_grupe = 1 THEN 
 
-      INSERT INTO mokejimo_planai_change (\`plan_from\`, \`plan_to\`, \`time\`, \`client_type\`, \`source\`) 
+      INSERT INTO mokejimo_planai_change (plan_from, plan_to, time, client_type, source) 
 
-      SELECT DISTINCT pp_from.id AS \`plan_from\`, pp_to.id AS \`plan_to\`, '0' AS \`time\`, @grupe AS \`client_type\`, '1' AS \`source\` 
-
-      FROM mokejimo_planai pp_from 
-
-      JOIN mokejimo_planai pp_to 
-
-      LEFT JOIN sut_kl_tipai_mok_planai ON sut_kl_tipai_mok_planai.kmp_mpl_id = pp_to.id 
-
-      LEFT JOIN sut_mok_planai_kl_tipai_laikotarpiai ON sut_mok_planai_kl_tipai_laikotarpiai.mkl_kmp_id = sut_kl_tipai_mok_planai.kmp_id 
-
-      WHERE (pp_from.id = @price_plan_id AND pp_to.grupe = @grupe AND pp_to.plano_grupe = @plano_grupe) 
-
-      OR (pp_from.grupe = @grupe AND pp_from.plano_grupe = @plano_grupe AND pp_to.id = @price_plan_id); 
-
-      INSERT INTO mokejimo_planai_change (\`plan_from\`, \`plan_to\`, \`time\`, \`client_type\`, \`source\`) 
-
-      SELECT DISTINCT pp_from.id AS \`plan_from\`, pp_to.id AS \`plan_to\`, '1' AS \`time\`, @grupe AS \`client_type\`, '1' AS \`source\` 
+      SELECT DISTINCT pp_from.id AS plan_from, pp_to.id AS plan_to, '0' AS time, @grupe AS client_type, '1' AS source 
 
       FROM mokejimo_planai pp_from 
 
@@ -941,9 +988,25 @@ BEGIN
 
       OR (pp_from.grupe = @grupe AND pp_from.plano_grupe = @plano_grupe AND pp_to.id = @price_plan_id); 
 
-      INSERT INTO mokejimo_planai_change (\`plan_from\`, \`plan_to\`, \`time\`, \`client_type\`, \`source\`) 
+      INSERT INTO mokejimo_planai_change (plan_from, plan_to, time, client_type, source) 
 
-      SELECT DISTINCT pp_from.id AS \`plan_from\`, pp_to.id AS \`plan_to\`, '2' AS \`time\`, @grupe AS \`client_type\`, '1' AS \`source\` 
+      SELECT DISTINCT pp_from.id AS plan_from, pp_to.id AS plan_to, '1' AS time, @grupe AS client_type, '1' AS source 
+
+      FROM mokejimo_planai pp_from 
+
+      JOIN mokejimo_planai pp_to 
+
+      LEFT JOIN sut_kl_tipai_mok_planai ON sut_kl_tipai_mok_planai.kmp_mpl_id = pp_to.id 
+
+      LEFT JOIN sut_mok_planai_kl_tipai_laikotarpiai ON sut_mok_planai_kl_tipai_laikotarpiai.mkl_kmp_id = sut_kl_tipai_mok_planai.kmp_id 
+
+      WHERE (pp_from.id = @price_plan_id AND pp_to.grupe = @grupe AND pp_to.plano_grupe = @plano_grupe) 
+
+      OR (pp_from.grupe = @grupe AND pp_from.plano_grupe = @plano_grupe AND pp_to.id = @price_plan_id); 
+
+      INSERT INTO mokejimo_planai_change (plan_from, plan_to, time, client_type, source) 
+
+      SELECT DISTINCT pp_from.id AS plan_from, pp_to.id AS plan_to, '2' AS time, @grupe AS client_type, '1' AS source 
 
       FROM mokejimo_planai pp_from 
 
@@ -971,5 +1034,11 @@ DELIMITER ;
 
 CALL temp_new_price_plan(); 
 
-DROP PROCEDURE IF EXISTS temp_new_price_plan;
+DROP PROCEDURE IF EXISTS temp_new_price_plan; 
+
+ 
+
+ 
+
+ 
 `;

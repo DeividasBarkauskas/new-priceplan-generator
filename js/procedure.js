@@ -725,7 +725,7 @@ BEGIN
 
           CASE  
 
-              WHEN akp_mw_kodas LIKE '%\_%'  
+              WHEN akp_mw_kodas LIKE '%\\\\_%'  
 
               THEN SUBSTRING_INDEX(sut_akcijos_paslaugos.akp_mw_kodas, '_', -1)  
 

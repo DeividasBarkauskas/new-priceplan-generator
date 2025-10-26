@@ -48,7 +48,7 @@ document.getElementById('input').addEventListener('change', function (e) {
           const fup        = row['Ar planui taikomas sąžiningo naudojimo perviršis?'].toLowerCase() === 'taip' ? 1 : 0;
           const netSecurity= row['Ar planas taikoma Interneto apsauga + promotion?'].toLowerCase() === 'taip' ? 1 : 0;
 
-          const offerFee   = extractOfferFeeFromText(printName);
+          const offerFee   = extractOfferFeeFromText(name);
           const threshold  = extractThresholdFromRow(row);
 
           const rootProductFee = tariffList[siebel]?.price || 'NULL /* ❌ TARIFAS NERASTAS */';
@@ -129,7 +129,7 @@ createSheetBlock(
       const threshold  = extractThresholdFromSheet(sheet) || '';
       const name       = get('F1');
       const printName  = get('F3');
-      const offerFee   = extractOfferFeeFromText(printName);
+      const offerFee   = extractOfferFeeFromText(name);
 
       let kodas  = get('H6');
       let siebel = get('H5');

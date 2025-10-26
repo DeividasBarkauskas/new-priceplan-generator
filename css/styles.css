@@ -1,0 +1,156 @@
+
+/* Kintamųjų (pirmas) blokas: visada pilnas, be scroll */
+.cm-vars .CodeMirror { height: auto !important; }
+.cm-vars .CodeMirror-scroll { overflow: visible !important; }
+
+/* Procedūros (antras) blokas: fiksuotas aukštis + vidinis scroll */
+.cm-proc .CodeMirror { height: 420px !important; }
+.cm-proc .CodeMirror-scroll { overflow: auto !important; }
+
+
+    body {
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: #00bcd4;
+      margin-bottom: 10px;
+    }
+    .sheet-block {
+      display: inline-block;
+      width: 48%;
+      margin: 1%;
+      vertical-align: top;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .query {
+      background-color: #1e1e1e;
+      color: #f8f8f2;
+      padding: 4px 8px;
+      border: 1px solid #444;
+      font-family: monospace;
+      font-size: 12px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    .query span.keyword { color: #66d9ef; }
+    .query span.table { color: #f8f8f2; }
+    .query span.where { color: #f92672; }
+    .query span.value { color: #a6e22e; }
+    .query.copied {
+      background-color: #2e7d32 !important;
+      transition: background-color 0.3s ease;
+    }
+    .CodeMirror {
+      height: auto;
+      border: 1px solid #444;
+    }
+    button.copy {
+      font-size: 12px;
+      padding: 4px 10px;
+      background-color: #444;
+      color: #fff;
+      border: 1px solid #666;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    button.copy:hover {
+      background-color: #555;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+    button.copy.copied {
+      background-color: #2e7d32 !important;
+      animation: shake 0.3s ease;
+    }
+    #default-banner {
+      border: 1px dashed #444;
+      padding: 20px;
+      margin-top: 30px;
+      text-align: center;
+      background-color: #2c2c2c;
+      border-radius: 6px;
+    }
+    #default-banner .query {
+      display: inline-block;
+      margin-top: 15px;
+    }
+  
+      /* === Kortelės ir grid === */
+  .page { max-width: 1200px; margin-top: 30px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 16px; }
+
+  .card {
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.5);
+  }
+
+  .card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; border-bottom: 1px solid #333; background-color: #2c2c2c;
+  }
+  .card__title { font-weight: 600; font-size: 13px; color: #00bcd4; display:flex; align-items:center; gap:10px; }
+  .pill {
+    font-family: monospace; font-size: 12px;
+    background:#1e2433; color:#d8e0ff; border:1px solid #38445d; border-radius:6px;
+    padding: 4px 8px; white-space: nowrap; overflow: auto; max-width: 420px;
+  }
+
+  .card__actions { display:flex; gap:8px; }
+  .btn {
+    background-color: #444; border: 1px solid #666; border-radius: 6px;
+    color: #fff; font-size: 11px; padding: 3px 8px; cursor: pointer;
+  }
+  .btn:hover { background-color: #555; }
+
+  /* ——— VISADA RODOMAS „kintamųjų“ blokas ——— */
+  .card__body { max-height: 420px; overflow: auto; }
+  .card__body pre { margin: 0; padding: 10px; font-family: monospace; font-size: 12px; white-space: pre; color: #f8f8f2; }
+  .card__body::-webkit-scrollbar { width: 8px; } .card__body::-webkit-scrollbar-thumb { background:#555; border-radius:8px; }
+
+  /* ——— SUSKLEIDŽIAMA „procedūra“ ——— */
+  details.proc { border-top: 1px solid #333; background:#1f1f1f; }
+  details.proc > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    display:flex; align-items:center; gap:8px; padding: 8px 10px; font-weight:600; color:#cfd8dc;
+  }
+  details.proc > summary::-webkit-details-marker { display:none; }
+  .caret { transition: transform .2s ease; }
+  details.proc[open] .caret { transform: rotate(90deg); }
+  .proc__body { border-top: 1px solid #333; }
+
+/* Bendra */
+.card__body pre {
+  margin: 0; padding: 10px;
+  font-family: monospace; font-size: 12px; white-space: pre; color: #f8f8f2;
+}
+
+/* 1) PIRMAS blokas: pilnas, be scroll */
+.body--auto {
+  max-height: none;     /* jokių ribų */
+  overflow: visible;    /* jokių scroll */
+}
+
+/* 2) ANTRAS blokas: ribotas, su scroll */
+.body--scroll {
+  max-height: 420px;
+  overflow: auto;
+}
+.body--scroll::-webkit-scrollbar { width: 8px; }
+.body--scroll::-webkit-scrollbar-thumb { background:#555; border-radius:8px; }

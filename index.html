@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8" />
+  <title>SQL Generatorius iš Excel failo</title>
+
+  <!-- Trečiųjų šalių bibliotekos -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+
+  <!-- Tavo stiliai -->
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <h1>SQL Generatorius iš Excel failo</h1>
+
+  <input type="file" id="input" accept=".xlsx" />
+  <div id="filename" style="margin-top: 5px; font-size: 13px; color: #ccc;"></div>
+
+  <div id="default-banner">
+    <p>Norėdami pradėti, įkelkite Excel failą su plano informacija.</p>
+    <div class="query" id="default-query">
+      <span class="keyword">SELECT</span> * 
+      <span class="keyword">FROM</span> 
+      <span class="table">mokejimo_planai_tariff_all</span> 
+      <span class="where">WHERE</span> 
+      <span class="table">macpoc_code</span> 
+      <span class="keyword">LIKE</span> 
+      <span class="value">'%1-AXJB9J%'</span>;
+    </div>
+  </div>
+
+  <div id="outputs"></div>
+
+  <!-- JS startas -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

@@ -1635,19 +1635,19 @@ export const tariffList = {
     "name": "Neriboti pokalbiai ir SMS už 15,65 Eur (be PVM)",
     "price": "15.65"
   },
-  " 1-8HJX3HA": {
+  "1-8HJX3HA": {
     "name": "T2 M2M LT 200 MB + 2000 SMS už 2,90 Eur be PVM",
     "price": "2.90"
   },
-  " 1-8HJX3FC": {
+  "1-8HJX3FC": {
     "name": "T2 M2M LT 1 GB + 50 SMS už 3,90 Eur be PVM",
     "price": "3.90"
   },
-  " 1-8HJX3JS": {
+  "1-8HJX3JS": {
     "name": "T2 M2M LT 3 GB + 50 SMS už 4,90 Eur be PVM",
     "price": "4.90"
   },
-  " 1-8HJX3DD": {
+  "1-8HJX3DD": {
     "name": "T2 M2M EU 500 MB + 50 SMS už 3,90 Eur be PVM",
     "price": "3.90"
   }

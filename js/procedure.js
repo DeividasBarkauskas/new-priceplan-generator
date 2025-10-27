@@ -707,35 +707,35 @@ BEGIN
 
     END IF; 
 
-    CREATE TEMPORARY TABLE temp_services (service_id INT); 
+    -- Paliekam kaip buvo
+CREATE TEMPORARY TABLE temp_services (service_id INT);
 
-    INSERT INTO temp_services (service_id) 
+INSERT INTO temp_services (service_id)
+SELECT service
+FROM JSON_TABLE(CONCAT('["', REPLACE(@services, ',', '","'), '"]'), '$[*]'
+  COLUMNS (service INT PATH '$')) AS t;
 
-    SELECT service 
+-- atnaujintas periodų parsinimas
+CREATE TEMPORARY TABLE temp_service_with_periods (service_id INT, period INT);
 
-    FROM JSON_TABLE(CONCAT('["', REPLACE(@services, ',', '","'), '"]'), '$[*]'  
-
-    COLUMNS (service INT PATH '$')) AS t; 
-
-    CREATE TEMPORARY TABLE temp_service_with_periods (service_id INT, period INT); 
-
-    INSERT INTO temp_service_with_periods 
-
-    SELECT temp_services.service_id,  
-
-          CASE  
-
-              WHEN akp_mw_kodas LIKE '%\\\\_%'  
-
-              THEN SUBSTRING_INDEX(sut_akcijos_paslaugos.akp_mw_kodas, '_', -1)  
-
-              ELSE NULL  
-
-          END AS period 
-
-    FROM temp_services 
-
-    LEFT JOIN sut_akcijos_paslaugos ON temp_services.service_id = sut_akcijos_paslaugos.akp_id; 
+INSERT INTO temp_service_with_periods
+SELECT ts.service_id,
+       CASE
+         -- jei akp_mw_kodas baigiasi _SKAITMENYS
+         WHEN REGEXP_LIKE(s.akp_mw_kodas, '_[0-9]+$') THEN
+           CASE
+             -- jei tas skaičius yra tarp @periods (pvz. '18,24') paliekam jį
+             WHEN FIND_IN_SET(SUBSTRING_INDEX(s.akp_mw_kodas,'_',-1), @periods) > 0
+               THEN CAST(SUBSTRING_INDEX(s.akp_mw_kodas,'_',-1) AS UNSIGNED)
+             -- jei ne, traktuojam kaip „be periodo“
+             ELSE NULL
+           END
+         -- jei pabaigoje ne skaičiai (pvz. _RES) laikom be periodo
+         ELSE NULL
+       END AS period
+FROM temp_services ts
+LEFT JOIN sut_akcijos_paslaugos s ON s.akp_id = ts.service_id;
+ 
 
     -- Terminated services insert 
 
@@ -801,7 +801,7 @@ BEGIN
 
     INSERT INTO package_codes (package_code, active, siebel_code) 
 
-    SELECT CONCAT('mp_',CONCAT(@price_plan_id, '_'),GROUP_CONCAT(mps.akp_id ORDER BY mps.akp_id ASC SEPARATOR '_')),1,CONCAT('mp_', CONCAT(@price_plan_id, '_'),tp.period) 
+    SELECT CONCAT('mp_',CONCAT(@price_plan_id, '_'),GROUP_CONCAT(mps.akp_id ORDER BY mps.akp_id ASC SEPARATOR '_')),'1',CONCAT('mp_', CONCAT(@price_plan_id, '_'),tp.period) 
 
     FROM temp_periods tp 
 

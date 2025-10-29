@@ -35,6 +35,9 @@ document.getElementById('input').addEventListener('change', function (e) {
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
       // 1) „vienos eilutės“ formatas (su stulpelių pavadinimais)
+      // === po to, kai pasiskaičiuoji kintamuosius iš Excel ===
+
+
       if (rows.length && Object.keys(rows[0]).includes('Plano pavadinimas per Salestool')) {
         rows.forEach(row => {
           const name       = row['Plano pavadinimas per Salestool'];
@@ -62,6 +65,8 @@ document.getElementById('input').addEventListener('change', function (e) {
               ? 5242880
               : 'Netinkamas formatas';
 
+          
+
           // periodai
           const periods = (row['Plano Terminai'] || '').toString();
           const wsc     = (row['Plano WSC Terminas'] || '').toString();
@@ -75,8 +80,21 @@ document.getElementById('input').addEventListener('change', function (e) {
             .sort((a, b) => a - b)
             .join(',');
 
+// --- NUOLAIDA iš eilutės (header’ių formatui) ---
+const discountRaw = (
+  row['Nuolaida'] ??
+  row['Plano nuolaida'] ??
+  row['Nuolaida mėn.'] ??
+  row['Plan discount'] ?? ''
+).toString().replace(',', '.');
+
+const discountAmount = Number(discountRaw) || 0;
+
+
+            
           const sql = 
 `-- Salestool new price plan db procedure
+SET @nuolaida = ${discountAmount};
 SET @pavadinimas = '${name}';
 SET @spausdinamas_pavadinimas = '${printName}';
 SET @pdf_name = '${printName}';
@@ -182,8 +200,95 @@ createSheetBlock(
 
       const rootProductFee = tariffList[siebel]?.price || 'NULL';
 
+// --- NUOLAIDA iš lapo (tvirti paieškos ir parsinimo įrankiai) ---
+const normalizeLabel = (s = "") =>
+  s.toString()
+   .trim()
+   .toLowerCase()
+   .normalize("NFD")
+   .replace(/[\u0300-\u036f]/g, "")      // šalina diakritikus
+   .replace(/[^a-z0-9% ]+/g, "")         // šalina nereikalingus simbolius
+   .replace(/\s+/g, " ");                 // suvienodina tarpus
+
+const colToNum = (col) => {
+  let n = 0;
+  for (let i = 0; i < col.length; i++) n = n * 26 + (col.charCodeAt(i) - 64);
+  return n;
+};
+const numToCol = (n) => {
+  let col = "";
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    col = String.fromCharCode(65 + rem) + col;
+    n = Math.floor((n - 1) / 26);
+  }
+  return col;
+};
+const nextColumn = (addr) => {
+  const m = /^([A-Z]+)(\d+)$/.exec(addr);
+  if (!m) return null;
+  const col = m[1], row = m[2];
+  return numToCol(colToNum(col) + 1) + row;
+};
+
+// Ieškom etiketės „nuolaida“ (leidžiame įvairius variantus)
+let discountAmount = 0;
+let discountFound = false;
+try {
+  const keys = Object.keys(sheet || {}).filter(k => /^[A-Z]+[0-9]+$/.test(k));
+  const labelKey = keys.find(k => {
+    const cell = sheet[k] || {};
+    const text = normalizeLabel(cell.w ?? cell.v ?? "");
+    // tiks "nuolaida", "nuolaida %", "nuolaida (%)", t.t.
+    return text.startsWith("nuolaida");
+  });
+
+  let valueCellAddr = null;
+
+  if (labelKey) {
+    const maybeRight = nextColumn(labelKey);
+    if (maybeRight && sheet[maybeRight]) {
+      valueCellAddr = maybeRight;
+    } else {
+      // jei dešinėje tuščia, pabandom dar per 2–3 stulpelius
+      for (let hop = 2; hop <= 3; hop++) {
+        const m = /^([A-Z]+)(\d+)$/.exec(labelKey);
+        const probe = numToCol(colToNum(m[1]) + hop) + m[2];
+        if (sheet[probe]) { valueCellAddr = probe; break; }
+      }
+    }
+  }
+
+  // Jei etiketės neradom — fallback į žinomą langelį (prireikus pasikeisk)
+  if (!valueCellAddr) valueCellAddr = "O9";
+
+  const rawCell = sheet[valueCellAddr] || {};
+  let rawStr = String(rawCell.w ?? rawCell.v ?? "").trim();
+
+  // Normalizuojam skaičių: pašalinam tarpus, tūkst. skirtukus, kablelius paverčiam į tašką
+  const hasPercent = /%/.test(rawStr);
+  rawStr = rawStr
+    .replace(/\s/g, "")
+    .replace(/\.(?=\d{3}\b)/g, "")    // . kaip tūkst. skirtukas
+    .replace(/,(?=\d)/g, ".")         // , kaip dešimt. skirtukas
+    .replace(/[^0-9.+-]/g, "");       // paliekam tik skaičiaus simbolius
+
+  let num = parseFloat(rawStr);
+  if (Number.isFinite(num)) {
+    // Jei procentas – parsinam į procentinę reikšmę (pvz., "15%" -> 15)
+    if (hasPercent && num <= 1) num = num * 100;
+    discountAmount = num;
+    discountFound = true;
+  } else {
+    discountAmount = 0;
+  }
+} catch (_) {
+  discountAmount = 0;
+  discountFound = false;
+}
       const sql =
 `-- Salestool new price plan db procedure
+SET @nuolaida = ${discountAmount};
 SET @pavadinimas = '${name}';
 SET @spausdinamas_pavadinimas = '${printName}';
 SET @pdf_name = '${printName}';
@@ -208,6 +313,28 @@ SET @services = '${services.sort((a,b)=>a-b).join(',')}'; -- ⚠️Paslaugos pli
 
 -- Toliau galima vykdyti CALL temp_new_price_plan();`;
 
+// kai jau turi reikšmes (klientas, periods, kodas, discountAmount ir t.t.)
+window.mainVars = {
+  grupe: klientas,              // 1 arba 2
+  periods: periods,             // pvz. "12,24,36"
+  macpoc_id: kodas,             // pvz. "1-8E873M9%"
+  nuolaidos_suma: discountAmount,
+  vat_rate: 0.21,
+
+  // kiti tavo laukai – jei reikia
+};
+
+// svarbu: suteikiam builderį, kurį skaitys mygtukas
+window.mainVars.discountSQL = () => window.buildDiscountSQLFromMain(window.mainVars);
+
+// log'as (privaloma, kad matytum)
+console.log('[discount] mainVars set =', window.mainVars);
+
+// pranešam UI (copy mygtukai įsijungs)
+window.dispatchEvent(new CustomEvent('mainVars:ready', { detail: window.mainVars }));
+
+
+
 const tariffRows = extractTariffRowsFromSheet(sheet);
 const tariffSQL  = buildTariffConfigSQL('@price_plan_id', tariffRows);
 
@@ -219,4 +346,5 @@ createSheetBlock(sheetName, sql, siebel, globalCounter++, () => tariffSQL);
   };
 
   reader.readAsArrayBuffer(file);
+  
 });

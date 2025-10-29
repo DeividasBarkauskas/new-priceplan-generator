@@ -154,3 +154,87 @@
 }
 .body--scroll::-webkit-scrollbar { width: 8px; }
 .body--scroll::-webkit-scrollbar-thumb { background:#555; border-radius:8px; }
+
+/* --- Nuolaidų kūrimo mygtukas --- */
+.discount-btn-container {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.discount-btn {
+  background: linear-gradient(145deg, #1b5e20, #2e7d32);
+  color: #e8f5e9;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+}
+
+.discount-btn:hover {
+  background: linear-gradient(145deg, #2e7d32, #388e3c);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.4);
+}
+
+.discount-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* Brand spalva kaip antraštės (h1) */
+:root{
+  --brand: #00bcd4;         /* tokia pati kaip h1 */
+  --brand-dark: #0097a7;
+  --ok-glow: rgba(0,188,212,.45);
+  --err: #ff5252;
+  --err-dark: #d32f2f;
+}
+
+/* Viršuje per vidurį */
+.discount-btn-container{
+  display:flex;
+  justify-content:center;
+  margin: 18px 0 8px;
+}
+
+/* Mygtukas – matinis/cian, kaip h1 */
+.discount-btn{
+  background: var(--brand);
+  color: #0f1418;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.discount-btn:hover{ background: var(--brand-dark); transform: translateY(-1px); }
+.discount-btn:active{ transform: translateY(0); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+
+/* Be-popup atsiliepimai: žalias/raudonas „blink“ */
+.discount-btn.flash-success{
+  box-shadow: 0 0 0 3px var(--ok-glow), 0 4px 10px rgba(0,0,0,.35);
+}
+.discount-btn.flash-error{
+  background: var(--err);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(255,82,82,.32), 0 4px 10px rgba(0,0,0,.35);
+  animation: btn-shake .25s ease;
+}
+
+/* trumpas „shake“ efektas klaidai */
+@keyframes btn-shake{
+  0%{ transform: translateX(0); }
+  25%{ transform: translateX(-3px); }
+  50%{ transform: translateX(3px); }
+  75%{ transform: translateX(-2px); }
+  100%{ transform: translateX(0); }
+}

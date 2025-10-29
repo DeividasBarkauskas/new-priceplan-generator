@@ -17,6 +17,12 @@
 <body>
   <h1>SQL Generatorius iš Excel failo</h1>
 
+  <!-- Mygtukas per vidurį viršuje -->
+<div class="discount-btn-container">
+  <button data-copy="sql" data-field="discountSQL" class="btn">Kopijuoti nuolaidos SQL</button>
+</div>
+
+
   <input type="file" id="input" accept=".xlsx" />
   <div id="filename" style="margin-top: 5px; font-size: 13px; color: #ccc;"></div>
 
@@ -35,7 +41,17 @@
 
   <div id="outputs"></div>
 
-  <!-- JS startas -->
-  <script type="module" src="./js/app.js"></script>
+  
+
+<!-- 1) builder’io funkcija (global) -->
+<script src="./js/features/tariffs/discountQuery.js"></script>
+
+<!-- 2) tavo app (po Excel – nustato planContext ir discountQuery) -->
+<script type="module" src="./js/app.js"></script>
+
+<!-- 3) UI/handleriai (kopijavimo mygtukas) -->
+<script type="module" src="./js/features/tariffs/index.js"></script>
+
+
 </body>
 </html>

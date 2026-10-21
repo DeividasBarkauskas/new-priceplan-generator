@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Price Plan Generator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <h1>New Price Plan Generator</h1>
+      <p class="muted">Sanitized portfolio demo — upload the included Excel template.</p>
+      <input id="file" type="file" accept=".xlsx,.xls">
+      <div id="status" class="status">Waiting for Excel file.</div>
+
+      <div class="grid">
+        <label>Plan name<input id="planName"></label>
+        <label>Customer group<input id="customerGroup"></label>
+        <label>Plan type<input id="planType"></label>
+        <label>Source product<input id="sourceProduct"></label>
+        <label>Plan code<input id="planCode"></label>
+        <label>Regular price<input id="regularPrice"></label>
+        <label>Offer price<input id="offerPrice"></label>
+        <label>Contract periods<input id="periods"></label>
+        <label>Promotion code<input id="promotionCode"></label>
+        <label>Service IDs<input id="serviceIds"></label>
+        <label>Primary product ID<input id="productId"></label>
+      </div>
+
+      <div class="actions">
+        <button id="generate">Generate SQL</button>
+        <button id="copy">Copy SQL</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Generated SQL</h2>
+      <pre id="sql">-- Upload the demo Excel template to generate SQL.</pre>
+    </section>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+</html>

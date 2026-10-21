@@ -9,7 +9,8 @@ h1,h2{margin-top:0}.muted{color:var(--muted)}
 label{display:grid;gap:5px;color:var(--muted)}
 input{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:#0a1020;color:var(--text)}
 .actions{display:flex;gap:10px;margin-top:16px}
-button{padding:10px 14px;border:0;border-radius:8px;background:var(--accent);color:white;cursor:pointer}
+button{padding:10px 14px;border:0;border-radius:8px;background:var(--accent);color:white;cursor:pointer;transition:background-color .15s ease,transform .15s ease,box-shadow .15s ease}
+button.copy-success{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.18);transform:scale(1.03)}
 .sql-panel{display:flex;flex-direction:column;max-height:calc(100vh - 48px)}
 .sql-panel pre[class*=language-]{flex:1;min-height:650px;margin:0;overflow:auto;white-space:pre;background:#070d18;border:1px solid var(--border);border-radius:10px;padding:16px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;text-shadow:none}
 .sql-panel code[class*=language-]{font:inherit;text-shadow:none;white-space:pre}

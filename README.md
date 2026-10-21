@@ -16,7 +16,7 @@ This repository is a **sanitized portfolio version** of an internal automation i
 
 ## How to use
 
-1. Open `index.html` or the GitHub Pages version.
+1. [Open page](https://deividasbarkauskas.github.io/new-priceplan-generator/)
 2. Upload `Test-Template.xlsx`.
 3. Review the parsed fields.
 4. Generate and inspect the demo SQL.
